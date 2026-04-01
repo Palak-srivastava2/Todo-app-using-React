@@ -1,0 +1,138 @@
+import React, { useState, useEffect } from "react";
+
+function App() {
+  const [task, setTask] = useState("");
+  const [todos, setTodos] = useState(() => {
+    const saved = localStorage.getItem("todos");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTask = () => {
+    if (!task.trim()) return;
+
+    setTodos([
+      ...todos,
+      { id: Date.now(), text: task, completed: false }
+    ]);
+    setTask("");
+  };
+
+  const toggleTask = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      )
+    );
+  };
+
+  const deleteTask = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  return (
+    <div style={styles.app}>
+      <h1 style={styles.title}>To-Do App</h1>
+
+      <div style={styles.inputContainer}>
+        <input
+          style={styles.input}
+          type="text"
+          placeholder="Enter a task..."
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
+        />
+        <button style={styles.addBtn} onClick={addTask}>
+          Add
+        </button>
+      </div>
+
+      <ul style={styles.list}>
+        {todos.map((todo) => (
+          <li key={todo.id} style={styles.listItem}>
+            <span
+              onClick={() => toggleTask(todo.id)}
+              style={{
+                ...styles.text,
+                textDecoration: todo.completed
+                  ? "line-through"
+                  : "none"
+              }}
+            >
+              {todo.text}
+            </span>
+
+            <button
+              style={styles.deleteBtn}
+              onClick={() => deleteTask(todo.id)}
+            >
+              ❌
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// 🎨 CSS-in-JS styles
+const styles = {
+  app: {
+    textAlign: "center",
+    fontFamily: "Arial, sans-serif",
+    marginTop: "50px",
+  },
+  title: {
+    color: "#333",
+  },
+  inputContainer: {
+    marginBottom: "20px",
+  },
+  input: {
+    padding: "10px",
+    width: "250px",
+    marginRight: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+  },
+  addBtn: {
+    padding: "10px 15px",
+    backgroundColor: "#28a745",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+  },
+  listItem: {
+    margin: "10px auto",
+    width: "300px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#f4f4f4",
+    padding: "10px",
+    borderRadius: "5px",
+  },
+  text: {
+    cursor: "pointer",
+  },
+  deleteBtn: {
+    background: "red",
+    color: "white",
+    border: "none",
+    padding: "5px 8px",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+};
+
+export default App;
